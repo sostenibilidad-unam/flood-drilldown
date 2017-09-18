@@ -36,7 +36,7 @@ var style = function(feature, resolution){
 	    }
 	    var key = value + "_" + labelText
 
-	    if (!styleCache_agebs_p0[key]){
+	    if (!styleCache[key]){
 		var text = new ol.style.Text({
 		      font: '14.3px \'Ubuntu\', sans-serif',
 		      text: labelText,
@@ -58,7 +58,7 @@ var style = function(feature, resolution){
 var map
 var layer = new ol.layer.Vector();
 jsonSource_data_layer = new ol.source.Vector();
-jsonSource_data_layer.addFeatures(get_features("bayesianPreEnch.json"));
+jsonSource_data_layer.addFeatures(get_features("/static/bayesianPreEnch.json"));
 
 layer = new ol.layer.Vector({
     source: jsonSource_data_layer,

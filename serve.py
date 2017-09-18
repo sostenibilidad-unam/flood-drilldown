@@ -29,7 +29,7 @@ agebs = load_agebs()
 
 @app.route('/table/')
 def table():
-    template = env.get_template('table.html')
+    template = env.get_template('table2.html')
     return template.render()
 
 

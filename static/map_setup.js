@@ -1,7 +1,10 @@
-function paint(ageb_ids){
+function paint(x,y){
+    console.log(x, y);
      vectorSource.clear();
-     estosFeatures = todos.filter(function (feature) {return ageb_ids.indexOf(feature.get('AGEB_ID')) >= 0;});
-     vectorSource.addFeatures(estosFeatures);
+     //estosFeatures = todos.filter(function (feature) {return ageb_ids.indexOf(feature.get('AGEB_ID')) >= 0;});
+    estosFeatures = todos.filter(function (feature) {
+	return (feature.get('FrecCateg') == x && feature.get('PrecCateg') == y);});
+    vectorSource.addFeatures(estosFeatures);
 
 }
 

@@ -18,24 +18,24 @@ function get_features(url) {
 }
 
 var map
-	 var layer = new ol.layer.Vector();
-      jsonSource_data_layer = new ol.source.Vector();
-      jsonSource_data_layer.addFeatures(get_features("precipitacion.json"));
+var layer = new ol.layer.Vector();
+jsonSource_data_layer = new ol.source.Vector();
+jsonSource_data_layer.addFeatures(get_features("bayesianPreEnch.json"));
 
-      layer = new ol.layer.Vector({
+layer = new ol.layer.Vector({
 	source: jsonSource_data_layer,
 	opacity: 0.85
-      });
+});
     
-        var stamenLayer = new ol.layer.Tile({
-				source: new ol.source.Stamen({
-				layer: 'terrain'
-			})
-        });
+var stamenLayer = new ol.layer.Tile({
+	source: new ol.source.Stamen({
+	layer: 'terrain'
+       })
+});
         
      	
 
-    	map = new ol.Map({
+map = new ol.Map({
      		projection:"EPSG:4326",
      		layers: [stamenLayer],
      		target: 'map',
@@ -43,9 +43,7 @@ var map
 	       		center: ol.proj.fromLonLat([-99.15,19.36]),
 	       		zoom: 11
       		})
-     	});
+});
 	
-	
-	
-	map.addLayer(layer);
+map.addLayer(layer);
 	

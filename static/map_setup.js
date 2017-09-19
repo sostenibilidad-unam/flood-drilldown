@@ -13,7 +13,36 @@ function paint(x,y){
    
     foreground.style("display", function(d) {return ageb_ids.indexOf(d['ageb_id']) >= 0 ? null : "none";});
 }
+var displayFeatureInfo = function (pixel) {
 
+	var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+		    return feature;
+	});
+
+	if (feature) {
+		
+		foreground.style("display", function(d) {return feature.get('AGEB_ID') == d['ageb_id'] ? null : "none";});
+		foreground.style("stroke-width", "4px");
+	}else{
+		foreground.style("stroke-width", "0.3px");
+		foreground.style("display", function(d) {return ageb_ids.indexOf(d['ageb_id']) >= 0 ? null : "none";});
+		vectorSource.clear();
+	    vectorSource.addFeatures(estosFeatures);
+	}
+
+	if (feature !== highlight) {
+		vectorSource.clear();
+		//if (highlight) {
+			//featureOverlay.getSource().removeFeature(highlight);
+		//	vectorSource.removeFeature(highlight);
+		//}
+	    	if (feature) {
+			vectorSource.addFeature(feature);
+		}
+		highlight = feature;
+	}
+
+};
 function get_features(url) {
     var data_layer = {};
 
@@ -112,7 +141,8 @@ var stamenLayer = new ol.layer.Tile({
 	source: new ol.source.Stamen({layer: 'terrain'})
 });
         
-     	
+var ageb_ids = [];  
+var estosFeatures = [];
 
 map = new ol.Map({
     projection:"EPSG:4326",
@@ -219,4 +249,21 @@ function brush() {
 	estosFeatures = todos.filter(function (feature) {return ageb_ids.indexOf(feature.get('AGEB_ID')) >= 0;});
 	vectorSource.addFeatures(estosFeatures);
 }
+var highlightStyleCache = {};
+var highlight;
+
+map.on('pointermove', function(evt) {
+    if (evt.dragging) {
+      return;
+    }
+    var pixel = map.getEventPixel(evt.originalEvent);
+    displayFeatureInfo(pixel);
+  });
+map.on('click', function(evt) {
+  displayFeatureInfo(evt.pixel);
+});
+
+
+
+
 

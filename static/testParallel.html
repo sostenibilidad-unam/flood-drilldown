@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+svg {font: 16px sans-serif; font-weight: normal;}
+
+.background path {fill: none; stroke: #ddd; shape-rendering: crispEdges;}
+.one_foreground path {stroke-width: 4px; fill: none; stroke: steelblue;}
+.foreground path {fill: none; stroke: steelblue;}
+.brush .extent {fill-opacity: .3; stroke: #fff; shape-rendering: crispEdges;}
+.axis line,
+.axis path {fill: none; stroke: #000; shape-rendering: crispEdges;}
+.axis text {text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;} 
+  
+* {margin: 0; padding: 0;}
+
+
+#map1 {width: 100%; height: 100%;}
+
+
+#container {width: 100%; height: 100%; position: relative;}
+#map{width: 100%; height: 72%; position: absolute; top: 0; left: 0;}
+#legend {width: 50px; height: 80px; position: absolute; top: 0; left: 0;}
+#legend {z-index: 10;}
+
+#info {width: 50px;height: 80px;position: absolute;top: 400px;right: 140px;}
+#info {z-index: 10;}
+#graph  {height: 15%; width:100%; font-size: 0; position: absolute; bottom: 100px;}
+  
+
+
+</style>
+<html>
+  <head>
+    <title>Parallel Coordinates Map of Mexico City</title>
+    <link rel="stylesheet" type="text/css" href="d3.parcoords.css">
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="d3.parcoords.js"></script>
+    
+    <link rel="stylesheet" href="./OpenLayers/3.12/ol.css" type="text/css">
+    
+    
+    <script src="./OpenLayers/3.12/ol.js"></script>
+    
+
+    <script src="agebs_p0.js"></script>
+  
+  </head>
+  <body>
+
+
+     <div id="map" ></div>
+    <div id="legend"></div>
+    <div id="graph"></div>  
+    <div id="info"></div>
+
+   
+   
+    <script>
+    function setup(){
+         pyapi.setPaleta([]);
+	     
+	     pyapi.setNumberOfFrames(1);
+	}
+	var size = 0;
+
+	var styleCache_agebs_p0={}
+	var style_agebs_p0 = function(feature, resolution){
+	    var context = {
+		feature: feature,
+		variables: {}
+	    };
+	    var value = ""
+	    var size = 0;
+	    var style = [ new ol.style.Style({
+		stroke: new ol.style.Stroke({color: 'rgba(100,100,100,1.0)', lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 0}), fill: new ol.style.Fill({color: 'rgba(100,100,100,0.5)'})
+	    })];
+	    if ("" !== null) {
+		var labelText = String("");
+	    } else {
+		var labelText = ""
+	    }
+	    var key = value + "_" + labelText
+
+	    if (!styleCache_agebs_p0[key]){
+		var text = new ol.style.Text({
+		      font: '14.3px \'Ubuntu\', sans-serif',
+		      text: labelText,
+		      textBaseline: "center",
+		      textAlign: "left",
+		      offsetX: 5,
+		      offsetY: 3,
+		      fill: new ol.style.Fill({
+		        color: 'rgba(0, 0, 0, 255)'
+		      }),
+		    });
+		styleCache_agebs_p0[key] = new ol.style.Style({"text": text})
+	    }
+	    var allStyles = [styleCache_agebs_p0[key]];
+	    allStyles.push.apply(allStyles, style);
+	    return allStyles;
+	};
+        
+	var format_agebs_p0 = new ol.format.GeoJSON();
+	var features_agebs_p0 = format_agebs_p0.readFeatures(geojson_agebs_p0, 
+		    {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+	var jsonSource_agebs_p0 = new ol.source.Vector({
+	    attributions: [new ol.Attribution({html: '<a href=""></a>'})],
+	});
+	jsonSource_agebs_p0.addFeatures(features_agebs_p0);var lyr_agebs_p0 = new ol.layer.Vector({
+		        source:jsonSource_agebs_p0, 
+		        style: style_agebs_p0,
+		        title: "agebs_p"
+		    });
+
+	lyr_agebs_p0.setVisible(true);
+	var layersList = [lyr_agebs_p0];
+	
+        var stamenLayer = new ol.layer.Tile({
+				source: new ol.source.Stamen({
+				layer: 'terrain'
+			})
+        });
+        
+     	var yoNoFui = false;
+
+        var style2 = new ol.style.Style({
+	    	  fill: new ol.style.Fill({
+	    	    color: 'rgba(70,130,180,0.7)'
+	    	  }),
+	    	  stroke: new ol.style.Stroke({
+	    	    color: '#319FD3',
+	    	    width: 1
+	    	  }),
+	    	  text: new ol.style.Text({
+	    	    font: '12px Calibri,sans-serif',
+	    	    fill: new ol.style.Fill({
+	    	      color: 'rgba(250,163,1,1)'
+	    	    }),
+	    	    stroke: new ol.style.Stroke({
+	    	      color: 'rgba(100,100,100,1)',
+	    	      width: 3
+	    	    })
+	    	  })
+	    	});
+       
+	var vectorSource = new ol.source.Vector({
+     		projection: 'EPSG:4326'
+     	});
+     	var miVector = new ol.layer.Vector({
+        	source: vectorSource,
+        	style: style2
+    	}); 
+
+    	map = new ol.Map({
+     		projection:"EPSG:4326",
+     		layers: [stamenLayer, lyr_agebs_p0, miVector],
+     		target: 'map',
+     		view: new ol.View({
+	       		center: ol.proj.fromLonLat([-99.15,19.36]),
+	       		zoom: 11
+      		})
+     	});
+	var todos = jsonSource_agebs_p0.getFeatures();
+    	
+
+	var highlightStyleCache = {};
+ 	
+
+	var highlight;
+	var displayFeatureInfo = function (pixel) {
+
+		var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+			    return feature;
+		});
+
+		var info = document.getElementById('info');
+			if (feature) {
+			    info.innerHTML = 'ageb_id : ' + feature.get('ageb_id');
+			} else {
+			    info.innerHTML = '&nbsp;';
+			}
+
+		if (feature) {
+			
+			foreground.style("display", function(d) {return feature.get('ageb_id') == d['ageb_id'] ? null : "none";});
+			foreground.style("stroke-width", "4px");
+		}else{
+			foreground.style("stroke-width", "0.3px");
+			brush();
+		}
+
+		if (feature !== highlight) {
+			vectorSource.clear();
+			//if (highlight) {
+				//featureOverlay.getSource().removeFeature(highlight);
+			//	vectorSource.removeFeature(highlight);
+			//}
+		    	if (feature) {
+				vectorSource.addFeature(feature);
+			}
+			highlight = feature;
+		}
+
+	    };
+
+
+	map.on('pointermove', function(evt) {
+	    if (evt.dragging) {
+	      return;
+	    }
+	    var pixel = map.getEventPixel(evt.originalEvent);
+	    displayFeatureInfo(pixel);
+	  });
+	map.on('click', function(evt) {
+	  displayFeatureInfo(evt.pixel);
+	});
+ 	
+
+	
+     	var collection = new ol.Collection();
+     	var select = new ol.interaction.Select({
+     		features: collection
+     	});
+     	
+     	var selectPointerMove = new ol.interaction.Select({
+            condition: ol.events.condition.pointerMove
+          });
+     	
+     	
+     	
+     	
+     	
+ 
+//    	map.addInteraction(selectPointerMove);
+//    	selectPointerMove.on('select', function(e) {
+//    		//console.log(e.target.getFeatures().item(0));
+//        	myFunction(e.target.getFeatures().item(0));
+//        });
+    	
+
+   
+	
+	var margin = {top: 30, right: 10, bottom: 10, left: 10},
+	    width = 1900 - margin.left - margin.right,
+	    height = 200 - margin.top - margin.bottom;
+	
+	var x = d3.scale.ordinal().rangePoints([0, width], 1),
+	    y = {};
+	
+	var line = d3.svg.line(),
+	    axis = d3.svg.axis().orient("left"),
+	    background,
+	    foreground;
+	
+	var svg = d3.select("#graph").append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	  
+	
+	d3.csv("p_agebs.csv", function(error, cars) {
+	
+	  // Extract the list of dimensions and create a scale for each.
+	  x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
+	    return d != "name" && (y[d] = d3.scale.linear()
+	        .domain(d3.extent(cars, function(p) { return +p[d]; }))
+	        .range([height, 0]));
+	  }));
+	  //console.log(cars);
+	
+	  // Add grey background lines for context.
+	  background = svg.append("g")
+	      .attr("class", "background")
+	    .selectAll("path")
+	      .data(cars)
+	    .enter().append("path")
+	      .attr("d", path);
+	
+	  // Add blue foreground lines for focus.
+	  foreground = svg.append("g")
+	      .attr("class", "foreground")
+	    .selectAll("path")
+	      .data(cars)
+	    .enter().append("path")
+	      .attr("d", path);
+
+	 
+	
+	  // Add a group element for each dimension.
+	  var g = svg.selectAll(".dimension")
+	      .data(dimensions)
+	    .enter().append("g")
+	      .attr("class", "dimension")
+	      .attr("transform", function(d) { return "translate(" + x(d) + ")"; });
+	
+	  // Add an axis and title.
+	  g.append("g")
+	      .attr("class", "axis")
+	      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+	    .append("text")
+	      .style("text-anchor", "middle")
+	      .attr("y", -9)
+	      .text(function(d) { return d; });
+	
+	  // Add and store a brush for each axis.
+	  g.append("g")
+	      .attr("class", "brush")
+	      .each(function(d) { d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush)); })
+	    .selectAll("rect")
+	      .attr("x", -18)
+	      .attr("width", 16);
+	});
+		
+	// Returns the path for a given data point.
+	function path(d) {
+	  return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+	}
+	var ageb_ids = [];
+	// Handles a brush event, toggling the display of foreground lines.
+	function brush() {
+		
+	  vectorSource.clear();
+          ageb_ids = [];
+	  var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }), extents = actives.map(function(p) { return y[p].brush.extent(); });
+	  foreground.style("display", function(d) {
+	    if (actives.every(function(p, i) {
+			return extents[i][0] <= d[p] && d[p] <= extents[i][1];	
+		})){
+	  	ageb_ids.push(d["ageb_id"]);
+		return null;	  
+	      
+	    }else{
+		return "none";
+	    }
+	  });
+	 
+	  estosFeatures = todos.filter(function (feature) {return ageb_ids.indexOf(feature.get('ageb_id')) >= 0;});
+    	  vectorSource.addFeatures(estosFeatures);
+	  
+//	  foreground.style("display", function(d) {
+//		  if (actives.every(function(p, i) {
+//				
+//		    })){
+//	    		esteFeature = todos.filter(function (feature) {
+//		    	return feature.get('ageb_id') == d["ageb_id"];
+//		  	});
+//	    		vectorSource.addFeatures(esteFeature);
+//			  }
+//		  
+//	    return actives.every(function(p, i) {
+//			return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+//	    }) ? null : "none";
+//	    
+//	    
+//	  });
+
+	  
+	}
+//	function myFunction(unFeature){
+//		var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
+//	      extents = actives.map(function(p) { return y[p].brush.extent(); });
+//		foreground.style("display", function(d) {
+//			console.log(unFeature.get('id') == d["id"]);
+//			
+//			return unFeature.get('id') == d["id"];
+//		});
+//	}
+	
+
+	
+    	
+    </script>
+    
+    
+    
+  </body>
+</html>
